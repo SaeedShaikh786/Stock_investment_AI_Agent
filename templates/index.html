@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Investment Strategist</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; max-width: 900px; margin: auto; }
+        h1 { text-align: center; color: #333; }
+        form { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"] { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 3px; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 1em; }
+        button:hover { background-color: #0056b3; }
+        #loading { text-align: center; font-style: italic; color: #555; margin-top: 20px; display: none; /* Hidden by default */ }
+        #results { margin-top: 20px; }
+        #report { border: 1px solid #eee; padding: 15px; background-color: #fff; border-radius: 5px; margin-bottom: 20px; min-height: 50px; }
+        #report h2, #report h3, #report h4 { margin-top: 1.2em; margin-bottom: 0.5em; border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+        #report ul { padding-left: 20px; }
+        #chart { border: 1px solid #eee; padding: 10px; background-color: #fff; border-radius: 5px; min-height: 400px; }
+        .error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>📈 AI Investment Strategist</h1>
+
+    <form id="investment-form">
+        <label for="symbols">Enter Stock Symbols (comma-separated):</label><br>
+        <input type="text" id="symbols" name="symbols" placeholder="AAPL, TSLA, GOOG" required><br><br>
+        <button type="submit">Generate Investment Report</button>
+    </form>
+
+    <div id="loading">Generating report, please wait... This may take a moment.</div>
+
+    <div id="results" style="display: none;"> <div id="report">
+            </div>
+        <div id="chart">
+            </div>
+    </div>
+     <div id="error-message" class="error" style="margin-top: 15px;"></div>
+
+
+    <script>
+        // Ensure the DOM is fully loaded before attaching event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('investment-form');
+            const loadingIndicator = document.getElementById('loading');
+            const resultsDiv = document.getElementById('results');
+            const reportDiv = document.getElementById('report');
+            const chartDiv = document.getElementById('chart');
+            const errorDiv = document.getElementById('error-message'); // Get error div
+
+            form.onsubmit = async function (e) {
+                e.preventDefault(); // Prevent traditional form submission
+                loadingIndicator.style.display = 'block'; // Show loading
+                resultsDiv.style.display = 'none'; // Hide previous results
+                reportDiv.innerHTML = ''; // Clear previous report
+                chartDiv.innerHTML = ''; // Clear previous chart
+                errorDiv.innerHTML = ''; // Clear previous errors
+
+                const formData = new FormData(e.target);
+
+                try {
+                    const response = await fetch('/generate_report', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    // Check if response is ok (status code 200-299)
+                    if (!response.ok) {
+                        // Try to parse error JSON from backend, otherwise use status text
+                        let errorMsg = `Error: ${response.status} ${response.statusText}`;
+                        try {
+                            const errorData = await response.json();
+                            errorMsg = errorData.error || errorMsg; // Use backend error if available
+                        } catch (jsonError) {
+                            // If response is not JSON, use the status text
+                            console.error("Response was not valid JSON:", jsonError);
+                        }
+                        throw new Error(errorMsg); // Throw an error to be caught below
+                    }
+
+                    // If response is OK, parse the JSON
+                    const data = await response.json();
+
+                    if (data.error) {
+                         // Should ideally be handled by !response.ok, but good as a fallback
+                         throw new Error(data.error);
+                    } else {
+                        // Render Markdown content using marked.js
+                        // Ensure marked is loaded - wrap in try/catch if uncertain
+                        try {
+                            // Use the 'marked.parse' method in newer versions
+                             reportDiv.innerHTML = marked.parse(data.report || "Report content is missing.");
+                        } catch (markedError) {
+                            console.error("Error using marked.js:", markedError);
+                            reportDiv.innerHTML = "<p class='error'>Failed to render report markdown.</p>" + `<pre>${data.report || ''}</pre>`; // Show raw report as fallback
+                        }
+
+
+                        // Render Plotly chart
+                        try {
+                            const chart = JSON.parse(data.chart); // data.chart should be a JSON string
+                            Plotly.newPlot('chart', chart.data, chart.layout);
+                        } catch (plotlyError) {
+                            console.error("Error parsing or plotting chart JSON:", plotlyError);
+                            chartDiv.innerHTML = "<p class='error'>Failed to render chart.</p>";
+                        }
+
+                        resultsDiv.style.display = 'block'; // Show results area
+                    }
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    // Display the error message clearly to the user
+                    errorDiv.innerHTML = `An error occurred: ${error.message}`;
+                    resultsDiv.style.display = 'none'; // Hide results area on error
+                } finally {
+                    loadingIndicator.style.display = 'none'; // Hide loading indicator regardless of outcome
+                }
+            };
+        });
+    </script>
+</body>
+</html>
