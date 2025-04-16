@@ -4,3 +4,5 @@ plotly
 agno
 google-genai
 flask
+python-dotenv
+Pillow
