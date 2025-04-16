@@ -181,7 +181,8 @@ st.set_page_config(page_title="AI Investment Strategist", layout="wide")
 # Main content title and header
 st.markdown("""
     <h1 style="text-align: center; color: #003D62;">AI Investment Strategist</h1>
-    <h3 style="text-align: center; color: #6c757d;">Generate personalized investment reports with the latest market insights.</h3>
+    <h3 style="text-align: center; color: #6c757d;">Leveraging AI for Market Insight Reports and Comparisons.
+</h3>
 """, unsafe_allow_html=True)
 
 # -- 🖼 Logo with Rounded Corners in Sidebar
@@ -256,15 +257,13 @@ st.sidebar.markdown(
 
 
 # -- 🧠 Use Case Description
-st.sidebar.title("Description")
+st.sidebar.title("Use Case Details")
 st.sidebar.markdown(
     """
-Enter the stock symbols you want to analyze. The AI will provide detailed insights, 
-performance reports, and top recommendations."""
+AI Stock Report Generator provides real-time analysis of U.S. and Indian stock markets. Users enter stock symbols (e.g., AAPL, MRF.NS) to receive AI-curated reports featuring key metrics, price trends, and performance comparisons. It offers a quick, intuitive way to evaluate and compare multiple stocks."""
 )
 
-st.sidebar.header("Enter Stock Symbols")
-st.sidebar.markdown("ex: AAPL,NVDA or MRF.NS, RELIANCE.NS for indian stocks.")
+#st.sidebar.header("Enter Stock Symbols")
 
 # --- Stock Symbol Input ---
 input_symbols = st.sidebar.text_input("Enter Stock Symbols")
@@ -272,6 +271,8 @@ input_symbols = st.sidebar.text_input("Enter Stock Symbols")
 
 # Parse the stock symbols input
 stocks_symbols = [symbol.strip() for symbol in input_symbols.split(",")]
+
+st.sidebar.markdown("E.g. AAPL, NVDA (U.S.) or MRF.NS, RELIANCE.NS (India)")
 
 # Generate Investment Report button
 if st.sidebar.button("Generate Report"):
