@@ -263,11 +263,11 @@ st.sidebar.markdown(
 AI Stock Report Generator provides real-time analysis of U.S. and Indian stock markets. Users enter stock symbols (e.g., AAPL, MRF.NS) to receive AI-curated reports featuring key metrics, price trends, and performance comparisons. It offers a quick, intuitive way to evaluate and compare multiple stocks."""
 )
 
-st.sidebar.subheader("Model:\nGemini-2.0-flash-exp")
+st.sidebar.subheader("Model Name:\nGemini-2.0-flash-exp")
 
 # --- Stock Symbol Input ---
 input_symbols = st.sidebar.text_input("Enter Stock Symbols")
-
+ 
 
 # Parse the stock symbols input
 stocks_symbols = [symbol.strip() for symbol in input_symbols.split(",")]
