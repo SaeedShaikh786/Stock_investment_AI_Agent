@@ -65,7 +65,7 @@ def compare_stocks(symbols):
 
 # Define the Market Analyst Agent
 market_analyst = Agent(
-    model=Gemini(id="gemini-2.0-flash-exp"),
+    model=Gemini(id="gemini-2.0-flash"),
     description="Analyzes and compares stock performance over time.",
     instructions=[
         "Retrieve and compare stock performance from Yahoo Finance.",
@@ -103,7 +103,7 @@ def get_company_news(symbol):
     return news
 
 company_researcher = Agent(
-    model=Gemini(id="gemini-2.0-flash-exp"),
+    model=Gemini(id="gemini-2.0-flash"),
     description="Fetches company profiles, financials, and latest news.",
     instructions=[
         "Retrieve company information from Yahoo Finance.",
@@ -126,7 +126,7 @@ def get_company_analysis(symbol):
 
 # ----------------------------- Stock strategist agent --------------------------- #
 stock_strategist = Agent(
-    model=Gemini(id="gemini-2.0-flash-exp"),
+    model=Gemini(id="gemini-2.0-flash"),
     description="Provides investment insights and recommends top stocks.",
     instructions=[
         "Analyze stock performance trends and company fundamentals.",
@@ -149,7 +149,7 @@ def get_stock_recommendations(symbols):
 
 # -------------------------------- Team Lead agent --------------------------------- #
 team_lead = Agent(
-    model=Gemini(id="gemini-2.0-flash-exp"),
+    model=Gemini(id="gemini-2.0-flash"),
     description="Aggregates stock analysis, company research, and investment strategy.",
     instructions=[
         "Compile stock performance, company analysis, and recommendations.",
@@ -263,7 +263,7 @@ st.sidebar.markdown(
 AI Stock Report Generator provides real-time analysis of U.S. and Indian stock markets. Users enter stock symbols (e.g., AAPL, MRF.NS) to receive AI-curated reports featuring key metrics, price trends, and performance comparisons. It offers a quick, intuitive way to evaluate and compare multiple stocks."""
 )
 
-st.sidebar.subheader("Model Name:\nGemini-2.0-flash-exp")
+st.sidebar.subheader("Model Name:\nGemini-2.0-flash")
 
 # --- Stock Symbol Input ---
 input_symbols = st.sidebar.text_input("Enter Stock Symbols")
@@ -301,4 +301,3 @@ if st.sidebar.button("Generate Report"):
                           yaxis_title="Price (in USD)",
                           template="plotly_dark")
         st.plotly_chart(fig)
-
