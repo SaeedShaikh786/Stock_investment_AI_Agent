@@ -176,11 +176,11 @@ def get_final_investment_report(symbols):
 
 
 # Streamlit page configuration
-st.set_page_config(page_title="AI Investment Strategist", layout="wide")
+st.set_page_config(page_title="AI Stock Analyst", layout="wide")
 
 # Main content title and header
 st.markdown("""
-    <h1 style="text-align: center; color: #003D62;">AI Investment Strategist</h1>
+    <h1 style="text-align: center; color: #003D62;">AI Stock Analyst</h1>
     <h3 style="text-align: center; color: #6c757d;">Leveraging AI for Market Insight Reports and Comparisons.
 </h3>
 """, unsafe_allow_html=True)
@@ -215,21 +215,23 @@ st.markdown(f"""
             padding: 0.5em;
         }}
 
+        /* MODIFIED: Original button style with new transition */
         [data-testid="stSidebar"] button {{
             background-color: transparent !important;
-            color: grey !important;
+            color: #E0E0E0 !important; /* Slightly lighter grey for better visibility on gradient */
             font-weight: bold;
-            border: 2px solid grey !important;
+            border: 2px solid #E0E0E0 !important;
             border-radius: 8px; 
             padding: 0.6em 1em;
             margin-top: 10px;
-            transition: none !important;  /* Disabling transition for hover */
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important; /* MODIFIED: Added smooth transition */
         }}
 
+        /* MODIFIED: New hover effect for the button */
         [data-testid="stSidebar"] button:hover {{
-        background-color: transparent !important;  /* Remove hover background */
-        color: light blue !important;  /* Ensure text color remains the same */
-        border: 2px light blue !important;  /* Ensure border stays the same */
+            background-color: #A7D8DE !important;  /* Light teal/blue background */
+            color: #003D62 !important;             /* Dark blue text for contrast */
+            border: 2px solid #A7D8DE !important;  /* Matching border color */
         }}
 
         [data-testid="stSidebar"] h2 {{
@@ -238,22 +240,37 @@ st.markdown(f"""
             margin-bottom: 0.5em;
         }}
 
-        [data-testid="stSidebar"] p {{
+        /* MODIFIED: Ensured Poppins font and color for list items in expander too */
+        [data-testid="stSidebar"] p, [data-testid="stSidebar"] li {{
             color: #f0f8ff;
             font-size: 0.95rem;
             line-height: 1.5;
         }}
+        /* MODIFIED: Styling for expander */
+        [data-testid="stExpander"] summary {{
+            font-size: 0.95rem;
+            color: #f0f8ff; /* Light color for expander header */
+        }}
+        [data-testid="stExpander"] {{
+            border: 1px solid #f0f8ff !important; /* Light border for expander */
+            border-radius: 8px;
+            margin-top: 10px;
+            margin-bottom: 10px; /* Added some margin below expander */
+        }}
     </style>
 """, unsafe_allow_html=True)
 
-st.sidebar.markdown(
-    f"""
-    <div style="text-align: center;">
-        <img src="data:image/png;base64,{logo_base64}" style="width: 220px; border-radius: 0px; margin-bottom: 20px;" />
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+if logo_base64: # Only display if logo was loaded
+    st.sidebar.markdown(
+        f"""
+        <div style="text-align: center;">
+            <img src="data:image/png;base64,{logo_base64}" style="width: 220px; border-radius: 0px; margin-bottom: 20px;" />
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+else:
+    st.sidebar.warning("Logo image not found. Please check the path: static/Hoonartek-V25-White-Color.png")
 
 
 # -- 🧠 Use Case Description
@@ -279,25 +296,27 @@ if st.sidebar.button("Generate Report"):
     if not stocks_symbols:
         st.sidebar.warning("Please enter at least one stock symbol.")
     else:
-        # Generate the final report
-        report = get_final_investment_report(stocks_symbols)
+        with st.spinner(f"Generating report for: {', '.join(stocks_symbols)}..."):
 
-        # Display the report
-        st.subheader("Investment Report")
-        st.markdown(report)
+            # Generate the final report
+            report = get_final_investment_report(stocks_symbols)
 
-        st.info("This report provides detailed insights, including market performance, company analysis, and investment recommendations.")
+            # Display the report
+            st.subheader("Investment Report")
+            st.markdown(report)
 
-        # Interactive Stock Performance Chart
-        st.markdown("### 📊 Stock Performance (6-Months)")
-        stock_data = yf.download(stocks_symbols, period="6mo")['Close']
+            st.info("This report provides detailed insights, including market performance, company analysis, and investment recommendations.")
 
-        fig = go.Figure()
-        for symbol in stocks_symbols:
-            fig.add_trace(go.Scatter(x=stock_data.index, y=stock_data[symbol], mode='lines', name=symbol))
+            # Interactive Stock Performance Chart
+            st.markdown("### 📊 Stock Performance (6-Months)")
+            stock_data = yf.download(stocks_symbols, period="6mo")['Close']
 
-        fig.update_layout(title="Stock Performance Over the Last 6 Months",
-                          xaxis_title="Date",
-                          yaxis_title="Price (in USD)",
-                          template="plotly_dark")
-        st.plotly_chart(fig)
+            fig = go.Figure()
+            for symbol in stocks_symbols:
+                fig.add_trace(go.Scatter(x=stock_data.index, y=stock_data[symbol], mode='lines', name=symbol))
+
+            fig.update_layout(title="Stock Performance Over the Last 6 Months",
+                            xaxis_title="Date",
+                            yaxis_title="Price (in USD)",
+                            template="plotly_dark")
+            st.plotly_chart(fig)
